@@ -44,9 +44,7 @@
     "prettier": "^2.3.2",
     "vue-template-compiler": "^2.6.10"
   },
-  "gitHooks": {
-    "pre-commit": "lint-staged"
-  },
+  "gitHooks": {},
   "lint-staged": {
     "*.{js,vue}": [
       "vue-cli-service lint",
