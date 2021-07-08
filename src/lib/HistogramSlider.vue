@@ -29,10 +29,12 @@ export default {
   props,
 
   data() {
+    const randomId = Math.random().toString(36).substr(2)
+
     return {
-      id: `vue-histogram-${this._uid}`,
-      histogramId: `histogram-slider-${this._uid}`,
-      clipId: `clip-${this._uid}`
+      id: `vue-histogram-${randomId}`,
+      histogramId: `histogram-slider-${randomId}`,
+      clipId: `clip-${randomId}`
     }
   },
 
@@ -70,26 +72,23 @@ export default {
     const isTypeSingle = this.type == 'single'
     var svg, histogram, x, y, hist, bins, colors, brush
 
-    this.updateBarColor = val => {
+    this.updateBarColor = (val) => {
       var transition = d3Trans.transition().duration(this.transitionDuration)
 
       d3Trans
         .transition(transition)
         .selectAll(`.vue-histogram-slider-bar-${this.id}`)
-        .attr('fill', d => {
+        .attr('fill', (d) => {
           if (isTypeSingle) {
             return d.x0 < val.from ? colors(d.x0) : this.holderColor
+          } else {
+            return d.x0 <= val.to && d.x0 >= val.from ? colors(d.x0) : this.holderColor
           }
-          return d.x0 <= val.to && d.x0 >= val.from ? colors(d.x0) : this.holderColor
         })
     }
 
     // x scale for time
-    x = d3Scale
-      .scaleLinear()
-      .domain([min, max])
-      .range([0, width])
-      .clamp(true)
+    x = d3Scale.scaleLinear().domain([min, max]).range([0, width]).clamp(true)
 
     // y scale for histogram
     y = d3Scale.scaleLinear().range([this.barHeight, 0])
@@ -116,10 +115,7 @@ export default {
     }
 
     if (this.colors) {
-      colors = d3Scale
-        .scaleLinear()
-        .domain([min, max])
-        .range(this.colors)
+      colors = d3Scale.scaleLinear().domain([min, max]).range(this.colors)
     } else {
       colors = () => this.primaryColor
     }
@@ -137,7 +133,7 @@ export default {
       // group data for bars
       bins = histogram(this.data)
 
-      y.domain([0, d3Array.max(bins, d => d.length)])
+      y.domain([0, d3Array.max(bins, (d) => d.length)])
 
       hist
         .selectAll(`.vue-histogram-slider-bar-${this.id}`)
@@ -145,13 +141,13 @@ export default {
         .enter()
         .insert('rect', 'rect.overlay')
         .attr('class', `vue-histogram-slider-bar-${this.id}`)
-        .attr('x', d => x(d.x0))
-        .attr('y', d => y(d.length))
+        .attr('x', (d) => x(d.x0))
+        .attr('y', (d) => y(d.length))
         .attr('rx', this.barRadius)
         .attr('width', this.barWidth)
         .transition(transition)
-        .attr('height', d => this.barHeight - y(d.length))
-        .attr('fill', d => (isTypeSingle ? this.holderColor : colors(d.x0)))
+        .attr('height', (d) => this.barHeight - y(d.length))
+        .attr('fill', (d) => (isTypeSingle ? this.holderColor : colors(d.x0)))
 
       if (this.ionRangeSlider) {
         this.ionRangeSlider.destroy()
@@ -172,23 +168,23 @@ export default {
         hide_from_to: this.hideFromTo,
         force_edges: this.forceEdges,
         drag_interval: this.dragInterval,
-        grid_num: this.gridNum,
+        grid_num: this.Number,
         block: this.block,
         keyboard: this.keyboard,
         prettify: this.prettify,
-        onStart: val => {
+        onStart: (val) => {
           this.$emit('start', val)
         },
-        onUpdate: val => {
+        onUpdate: (val) => {
           this.$emit('update', val)
         },
-        onFinish: val => {
+        onFinish: (val) => {
           if (!this.updateColorOnChange) {
             this.updateBarColor(val)
           }
           this.$emit('finish', val)
         },
-        onChange: val => {
+        onChange: (val) => {
           if (this.updateColorOnChange) {
             this.updateBarColor(val)
           }
@@ -205,8 +201,8 @@ export default {
     }
 
     if (this.clip) {
-      brush = d3Brush.brushX().on('end', () => {
-        var extent = d3Select.event.selection
+      brush = d3Brush.brushX().on('end', (event) => {
+        var extent = event.selection
         if (extent) {
           var domain = [x.invert(extent[0]), x.invert(extent[1])]
           x.domain(domain)

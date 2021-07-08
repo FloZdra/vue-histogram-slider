@@ -66,8 +66,8 @@ export default {
   type: {
     type: String,
     default: 'double',
-    validator: function(value) {
-      return ['double', 'single'].indexOf(value) !== -1
+    validator: (value) => {
+      return ['double', 'single'].includes(value)
     }
   },
   width: {
